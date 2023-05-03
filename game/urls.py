@@ -44,11 +44,11 @@ deck_detail = DeckViewSet.as_view({
 
 urlpatterns = [
     path('games/', game_list, name='game-list'),
-    path('game/<int:pk>/', game_detail, name='game-detail'),
+    path('games/<int:pk>/', game_detail, name='game-detail'),
 
     path('cards/', card_list, name='card-list'),
-    path('card/<int:pk>/', card_detail, name='card-detail'),
+    path('cards/<int:pk>/', card_detail, name='card-detail'),
 
     path('decks/', deck_list, name='deck-list'),
-    path('deck/<int:pk>/', deck_detail, name='deck-detail'),
+    path('decks/<int:pk>/', deck_detail, name='deck-detail'),
 ]

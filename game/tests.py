@@ -113,3 +113,19 @@ class TestCard(BaseTestCaseAPI):
 
 class TestGame(BaseTestCaseAPI):
     pass
+    def test_game_create(self):
+        body = {
+            'name': 'test card 1',
+            'description': 'this is test card 01',
+            'type': Card.ANTI,
+            'bonus': 0,
+            # 'buy_price': None,
+            # 'rent_price': None,
+            'sp_per_usage': 0
+        }
+        url = reverse("card-list")
+        response = self.admin_client.post(url, body)
+        self.assertEqual(response.status_code, 201)
+
+        card_id = response.data['id']
+        user_id = self.user.id
