@@ -89,6 +89,9 @@ class Player(models.Model):
     bankroll = models.PositiveIntegerField(default=12000)
     sp = models.PositiveSmallIntegerField(default=3)
 
+    class Meta:
+        unique_together = ('game', 'user')
+
 
 class CardState(models.Model):
     """
@@ -125,3 +128,6 @@ class CardState(models.Model):
     state_description = models.PositiveSmallIntegerField(default=DEFAULT, choices=DESCRIPTIONS)
     buy_price = models.PositiveIntegerField(blank=True, null=True)
     rent_price = models.PositiveIntegerField(blank=True, null=True)
+
+    class Meta:
+        unique_together = ('game', 'card')

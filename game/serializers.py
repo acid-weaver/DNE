@@ -2,6 +2,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from game.models import Game, Card, Deck, Player, CardState
+from user.models import User
 from user.serializers import UserSerializer
 
 
@@ -63,6 +64,65 @@ class CardStateSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 
+class GameCreateSerializer(serializers.ModelSerializer):
+    cards = serializers.ListField(required=True, write_only=True)
+    users = serializers.ListField(required=True, write_only=True)
+
+    class Meta:
+        model = Game
+        fields = ('id', 'turn', 'turn_stage', 'card_states', 'players', 'created_at', 'updated_at', 'cards', 'users')
+        read_only_fields = ('created_at', 'updated_at', 'card_states', 'players')
+
+    def validate(self, attrs):
+        cards = attrs.get('cards', [])
+        users = attrs.get('users', [])
+
+        # card_states validation
+        if len(cards) == 0:
+            raise ValidationError("You are trying to create game without cards!")
+
+        for card in cards:
+            if not isinstance(card, int):
+                raise ValidationError("Cards must be provided as their ID's (list of int) "
+                                      "while you create game")
+            try:
+                Card.objects.get(id=card)
+            except:
+                raise ValidationError(f"No card with ID {card}.")
+            
+        # players validation
+        if len(users) == 0:
+            raise ValidationError("You are trying to create game without players!")
+        
+        for user in users:
+            if not isinstance(user, int):
+                raise ValidationError("Users must be provided as their ID's (list of int) "
+                                      "while you create game")
+            try:
+                User.objects.get(id=user)
+            except:
+                raise ValidationError(f"No user with ID {user}.")
+
+        return super().validate(attrs)
+
+    def create(self, validated_data):
+        turn = validated_data.get('turn', 0)
+        turn_stage = validated_data.get('turn_stage', 0)
+
+        game = Game.objects.create(turn=turn, turn_stage=turn_stage)
+
+        card_ids = validated_data.get('cards', [])
+        for card_id in card_ids:
+            card = Card.objects.get(id=card_id)
+            CardState.objects.create(card=card, game=game, buy_price=card.buy_price, rent_price=card.rent_price)
+
+        user_ids = validated_data.get('users', [])
+        for user_id in user_ids:
+            Player.objects.create(user_id=user_id, game=game)
+
+        return game
+
+
 class GameSerializer(serializers.ModelSerializer):
     card_states = CardStateSerializer(many=True)
     players = PlayerSerializer(many=True)
@@ -71,25 +131,3 @@ class GameSerializer(serializers.ModelSerializer):
         model = Game
         fields = ('id', 'turn', 'turn_stage', 'card_states', 'players', 'created_at', 'updated_at')
         read_only_fields = ('created_at', 'updated_at')
-
-    def create(self, validated_data):
-        turn = 0
-        turn_stage = 0
-        game = Game.objects.create()
-        cards = validated_data.get('card_states', [])
-
-        for card in cards:
-            card_id = card.get('id', None)
-
-            # TODO relize it in validation
-            if not card_id:
-                raise ValidationError("You trying create game, but provided card(s) doesn't exist!")
-
-            card_data = {
-                'card': card_id,
-                'game': game.id,
-                'player': None,
-                'owner': None,
-            }
-            card_serializer = CardStateSerializer(data=card_data)
-        return game

@@ -1,11 +1,14 @@
 from rest_framework.viewsets import ModelViewSet
 
-from game.models import (Game,
-                         Card,
-                         Deck)
-from game.serializers import (GameSerializer,
-                              CardSerializer,
-                              DeckSerialier)
+from game.models import (Card,
+                         Deck,
+                         Game,
+                         Player)
+from game.serializers import (CardSerializer,
+                              DeckSerialier,
+                              GameCreateSerializer,
+                              GameSerializer,
+                              PlayerSerializer)
 from utils.permissions import AdminPermission
 
 
@@ -19,7 +22,7 @@ class CardViewSet(ModelViewSet):
 # TODO remove ModelViewSet to different Mixins to all used methods
 # TODO customize methods with logic
 class DeckViewSet(ModelViewSet):
-    queryset = Deck.objects.order_by('id')
+    queryset = Deck.objects.order_by('owner', 'name')
     serializer_class = DeckSerialier
 
 
@@ -28,4 +31,15 @@ class DeckViewSet(ModelViewSet):
 class GameViewSet(ModelViewSet):
     queryset = Game.objects.order_by('id')
     serializer_class = GameSerializer
-    # permission_classes = [AdminPermission]
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return GameCreateSerializer
+        return GameSerializer
+
+
+# TODO remove ModelViewSet to different Mixins to all used methods
+# TODO customize methods with logic
+class PlayerViewSet(ModelViewSet):
+    queryset = Player.objects.order_by('id')
+    serializer_class = PlayerSerializer
