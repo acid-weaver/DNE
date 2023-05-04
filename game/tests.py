@@ -1,7 +1,13 @@
+import random
+from rest_framework.renderers import JSONRenderer
 from utils.tests import BaseTestCaseAPI
+from model_bakery import baker
 from rest_framework.reverse import reverse
 
-from game.models import Card
+from game.models import Card, Game, Player, CardState
+from game.serializers import CardSerializer, CardStateSerializer, PlayerSerializer
+from user.models import User
+from user.serializers import UserSerializer
 from utils.tests import remove_timestamps_id
 
 
@@ -112,20 +118,39 @@ class TestCard(BaseTestCaseAPI):
         
 
 class TestGame(BaseTestCaseAPI):
-    pass
+
     def test_game_create(self):
+        # creation with format of list of ints
+        card_ids = [baker.make(Card).id for _ in range(random.randrange(9, 19, 1))]
+        user_ids = [baker.make(User).id for _ in range(random.randrange(3, 7, 1))]
         body = {
-            'name': 'test card 1',
-            'description': 'this is test card 01',
-            'type': Card.ANTI,
-            'bonus': 0,
-            # 'buy_price': None,
-            # 'rent_price': None,
-            'sp_per_usage': 0
+            "cards": card_ids,
+            "users": user_ids
         }
-        url = reverse("card-list")
+
+        url = reverse("game-list")
         response = self.admin_client.post(url, body)
         self.assertEqual(response.status_code, 201)
 
-        card_id = response.data['id']
-        user_id = self.user.id
+        game_id = response.data.get("id", None)
+        players = response.data.get('players', [])
+        card_states = response.data.get('card_states', [])
+        self.assertEqual(players, [i[0] for i in Player.objects.filter(game_id=game_id).values_list('id')])
+        self.assertEqual(card_states, [i[0] for i in CardState.objects.filter(game_id=game_id).values_list('id')])
+
+        cards = [JSONRenderer().render(CardSerializer(card).data) for card in [Card.objects.get(id=card_id) for card_id in card_ids]]
+        users = [JSONRenderer().render(UserSerializer(user).data) for user in [User.objects.get(id=user_id) for user_id in user_ids]]
+        body = {
+            "cards": cards,
+            "users": users
+        }
+
+        url = reverse("game-list")
+        response = self.admin_client.post(url, body)
+        self.assertEqual(response.status_code, 201)
+
+        game_id = response.data.get("id", None)
+        players = response.data.get('players', [])
+        card_states = response.data.get('card_states', [])
+        self.assertEqual(players, [k[0] for k in Player.objects.filter(game_id=game_id).values_list('id')])
+        self.assertEqual(card_states, [k[0] for k in CardState.objects.filter(game_id=game_id).values_list('id')])

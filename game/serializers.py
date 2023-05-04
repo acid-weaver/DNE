@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+from utils.utils import ModelRequestValidator
 
 from game.models import Game, Card, Deck, Player, CardState
 from user.models import User
@@ -81,27 +82,32 @@ class GameCreateSerializer(serializers.ModelSerializer):
         if len(cards) == 0:
             raise ValidationError("You are trying to create game without cards!")
 
+        parsed_cards = []
         for card in cards:
-            if not isinstance(card, int):
-                raise ValidationError("Cards must be provided as their ID's (list of int) "
-                                      "while you create game")
-            try:
-                Card.objects.get(id=card)
-            except:
-                raise ValidationError(f"No card with ID {card}.")
+            parser = ModelRequestValidator(card, Card)
+            card = parser()
+
+            if not card:
+                parser.errors()
+
+            parsed_cards.append(card)
             
         # players validation
         if len(users) == 0:
             raise ValidationError("You are trying to create game without players!")
-        
+
+        parsed_users = []
         for user in users:
-            if not isinstance(user, int):
-                raise ValidationError("Users must be provided as their ID's (list of int) "
-                                      "while you create game")
-            try:
-                User.objects.get(id=user)
-            except:
-                raise ValidationError(f"No user with ID {user}.")
+            parser = ModelRequestValidator(user, User)
+            user = parser()
+
+            if not user:
+                parser.errors()
+
+            parsed_users.append(user)
+
+        attrs['cards'] = parsed_cards
+        attrs['users'] = parsed_users
 
         return super().validate(attrs)
 
@@ -111,14 +117,13 @@ class GameCreateSerializer(serializers.ModelSerializer):
 
         game = Game.objects.create(turn=turn, turn_stage=turn_stage)
 
-        card_ids = validated_data.get('cards', [])
-        for card_id in card_ids:
-            card = Card.objects.get(id=card_id)
+        cards = validated_data.get('cards', [])
+        for card in cards:
             CardState.objects.create(card=card, game=game, buy_price=card.buy_price, rent_price=card.rent_price)
 
-        user_ids = validated_data.get('users', [])
-        for user_id in user_ids:
-            Player.objects.create(user_id=user_id, game=game)
+        users = validated_data.get('users', [])
+        for user in users:
+            Player.objects.create(user_id=user.id, game=game)
 
         return game
 
