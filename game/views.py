@@ -1,4 +1,6 @@
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.response import Response
+from rest_framework.decorators import action
 
 from game.models import (Card,
                          Deck,
@@ -33,9 +35,15 @@ class GameViewSet(ModelViewSet):
     serializer_class = GameSerializer
 
     def get_serializer_class(self):
-        if self.request.method == 'POST':
+        if self.request.method in ('POST'):
             return GameCreateSerializer
         return GameSerializer
+
+    # @action(detail=True, methods=['post'])
+    # def assign_user(self, request):
+    #     user_id = request.data.get('user_id', None)
+    #     if not user_id:
+    #         return Response(status=400, data='Bad Request, to add user to game you sould provide an json in following format: {"user_id":<int:id>}')
 
 
 # TODO remove ModelViewSet to different Mixins to all used methods

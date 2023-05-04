@@ -2,29 +2,6 @@ import json
 from rest_framework.exceptions import ValidationError
 
 
-def safe_converter(data, to_type:type, logs:list=[], value_error:str="ValueError"):
-    """
-    Converts data to provided class.
-    All needed for to_type(data) line methods must be implemented.
-
-    :param data: Data what needed to be converted.
-    :param type to_type: To which format data must be converted.
-
-    :param list logs: List what would be extended with error messages, 
-    defaults to []
-    :param str value_error: Logs would be extended with this message 
-    in case of ValueError, defaults to "ValueError"
-
-    :return to_type or None: Returns data in "to_type" format. 
-    If error occured returns None.
-    """
-    try:
-        data = to_type(data)
-        return(data)
-    except ValueError:
-        logs.append(value_error)
-
-
 def get_or_validation_error(id:int, model, error_msg):
     try:
         return model.objects.get(id=id)
@@ -50,12 +27,9 @@ class ModelRequestValidator:
         except ValueError:
             self.logs.append('ValueError')
 
-
     def parse_dict(self):
         try:
-            # print(self.data)
             data = json.loads(self.data)
-            # print(data)
             id = data.get('id', None)
 
             if not id:
@@ -72,7 +46,6 @@ class ModelRequestValidator:
             self.logs.append(f"AttributeError with data {self.data}")
 
     def errors(self):
-        # print(self.logs)
         raise ValidationError(f"{self.model.__name__}s provided with unsupported format. "
                               "Please use list of json or list of int "
                               f"with ID of {self.model.__name__}s.")
