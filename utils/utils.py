@@ -9,51 +9,79 @@ def get_or_validation_error(id:int, model, error_msg):
         raise ValidationError(error_msg)
     
 
-class ModelRequestValidator:
-    def __init__(self, data, model, **kwargs):
+class NestedModelHandler:
+    def __init__(self, data, model):
         self.data = data
         self.model = model
         self.logs = []
         self.instance = None
-        self._options = kwargs
 
 
-    def parse_int(self):
+    def _get_by_id_int(self):
         try:
-            id = int(self.data)
-            self.instance = get_or_validation_error(id, self.model,
-                               f"No {self.model.__name__} with ID {id}.")
+            self.data = int(self.data)
 
         except ValueError:
-            self.logs.append('ValueError')
+            self.logs.append("_get_by_id_int to int conversion ValueError.")
+            return
+        
+        self.instance = get_or_validation_error(self.data, self.model,
+                            f"No {self.model.__name__} with ID {self.data}.")
 
-    def parse_dict(self):
+
+    def _get_by_id_dict(self):
         try:
-            data = json.loads(self.data)
-            id = data.get('id', None)
-
-            if not id:
-                raise ValidationError(f"Provided as dict {self.model.__name__} doesn't have an ID. ")
-
-            self.instance = get_or_validation_error(id, self.model, 
-                            f"Provided as dict {self.model.__name__} doesn't exist. ID {id}")
+            self.data = dict(json.loads(self.data))
 
         except ValueError:
-            self.logs.append(f"ValueError with data {self.data}")
+            self.logs.append("_get_by_id_dict to dict conversion ValueError.")
+            return
+
         except TypeError:
-            self.logs.append(f"TypeError with data {self.data}")
-        except AttributeError:
-            self.logs.append(f"AttributeError with data {self.data}")
+            self.logs.append("_get_by_id_dict to dict conversion TypeError.")
+            return
 
-    def errors(self):
-        raise ValidationError(f"{self.model.__name__}s provided with unsupported format. "
-                              "Please use list of json or list of int "
-                              f"with ID of {self.model.__name__}s.")
-    
+        id = self.data.get('id', None)
+        if not id:
+            raise ValidationError(f"Provided as dict {self.model.__name__} doesn't have an ID. ")
+
+        self.instance = get_or_validation_error(id, self.model, 
+                        f"Provided as dict {self.model.__name__} doesn't exist. ID {id}")
+
+
+    def get_instance(self):
+        self._get_by_id_int()
+        self._get_by_id_dict()
+
+        if not self.instance:
+            self.error()
+
+        return self.instance
+
+
+    def update(self, serializer):
+        self._get_by_id_dict()
+        if not self.instance:
+            self.error(_form_msg=1)
+
+        data = serializer(self.instance).data
+        data.update(self.data)
+        serializer = serializer(self.instance, data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+
+    def error(self, _form_msg=2):
+        error_msg = ''
+        msg = [f"{self.model.__name__}s provided with unsupported format.",
+               f"Please use list of json or list of int with ID of {self.model.__name__}s."]
+        for i in range(_form_msg):
+            error_msg += msg[i] + ' '
+
+        raise ValidationError(error_msg)
+
 
     def __call__(self):
-        if self.logs:
-            self.errors()
-        self.parse_int()
-        self.parse_dict()
-        return self.instance
+        if self.logs and not self.instance:
+            self.error()
+        return self.get_instance()

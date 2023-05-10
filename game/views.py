@@ -34,10 +34,12 @@ class GameViewSet(ModelViewSet):
     queryset = Game.objects.order_by('id')
     serializer_class = GameSerializer
 
+
     def get_serializer_class(self):
         if self.request.method in ('POST'):
             return GameCreateSerializer
         return GameSerializer
+
 
     # @action(detail=True, methods=['post'])
     # def assign_user(self, request):

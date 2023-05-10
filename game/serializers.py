@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-from utils.utils import ModelRequestValidator
+from utils.utils import NestedModelHandler
 
 from game.models import Game, Card, Deck, Player, CardState
 from user.models import User
@@ -18,6 +18,7 @@ class CardSerializer(serializers.ModelSerializer):
 class DeckSerialier(serializers.ModelSerializer):
     cards = CardSerializer(many=True)
 
+
     class Meta:
         model = Deck
         fields = ('id', 'name', 'cards', 'owner', 'created_at', 'updated_at')
@@ -26,6 +27,7 @@ class DeckSerialier(serializers.ModelSerializer):
 
 class PlayerSerializer(serializers.ModelSerializer):
     user = UserSerializer()
+
 
     class Meta:
         model = Player
@@ -37,13 +39,14 @@ class PlayerSerializer(serializers.ModelSerializer):
 class CardStateSerializer(serializers.ModelSerializer):
     card = CardSerializer()
 
+
     class Meta:
         model = CardState
         fields = ('id', 'game', 'card', 'player', 'owner', 'state',
                   'state_description', 'buy_price', 'rent_price')
 
+
     def validate(self, attrs):
-        print("cardState serializer")
         card_id = attrs.get('card', None)
 
         try:
@@ -53,6 +56,7 @@ class CardStateSerializer(serializers.ModelSerializer):
             raise ValidationError('Card info not provided or invalid card id!')
 
         return super().validate(attrs)
+
 
     def create(self, validated_data):
         owner = validated_data.get('owner', None)
@@ -66,51 +70,47 @@ class CardStateSerializer(serializers.ModelSerializer):
             rent_price = card.rent_price
 
         return super().create(validated_data)
+    
+
+    def update(self, instance, validated_data):
+        
+        return super().update(instance, validated_data)
 
 
 class GameCreateSerializer(serializers.ModelSerializer):
     cards = serializers.ListField(write_only=True)
     users = serializers.ListField(write_only=True)
-    # card_states = serializers.ListField()
-    # players = serializers.ListField()
+
 
     class Meta:
         model = Game
-        fields = ('id', 'turn', 'turn_stage', 'card_states', 'players', 'created_at',
-                  'updated_at', 'cards', 'users')
+        fields = ('id', 'turn', 'turn_stage', 'cards', 'users', 'created_at', 'updated_at')
         read_only_fields = ('created_at', 'updated_at')
+
 
     def validate(self, attrs):
         cards = attrs.get('cards', [])
-        card_states = attrs.get('card_states', [])
         users = attrs.get('users', [])
-        players = attrs.get('players', [])
 
         # card_states validation
-        if not cards and not card_states:
+        if not cards:
             raise ValidationError("You are trying to create game without cards!")
 
         parsed_cards = []
         for card in cards:
-            parser = ModelRequestValidator(card, Card)
+            parser = NestedModelHandler(card, Card)
             card = parser()
-
-            if not card:
-                parser.errors()
 
             parsed_cards.append(card)
             
         # players validation
-        if not users and not players:
+        if not users:
             raise ValidationError("You are trying to create game without players!")
 
         parsed_users = []
         for user in users:
-            parser = ModelRequestValidator(user, User)
+            parser = NestedModelHandler(user, User)
             user = parser()
-
-            if not user:
-                parser.errors()
 
             parsed_users.append(user)
 
@@ -118,13 +118,7 @@ class GameCreateSerializer(serializers.ModelSerializer):
         attrs['users'] = parsed_users
 
         return attrs
-    
-    def update(self, instance, validated_data):
-        print("update")
-        # cards = validated_data.get('cards', [])
-        # for card in cards:
-        #     card_state = CardState.objects.filter(game=instance, card_id=card.id)
-        return super().update(instance, validated_data)
+
 
     def create(self, validated_data):
         turn = validated_data.get('turn', 0)
@@ -144,20 +138,33 @@ class GameCreateSerializer(serializers.ModelSerializer):
         return game
 
 
+class GameUpdateSerializer(serializers.ModelSerializer):
+    card_states = serializers.ListField(write_only=True)
+    players = serializers.ListField(write_only=True)
+
+
+    class Meta:
+        model = Game
+        fields = ('id', 'turn', 'turn_stage', 'card_states', 'players', 'created_at',
+                  'updated_at')
+        read_only_fields = ('created_at', 'updated_at')
+
+
+    def validate(self, attrs):
+        return super().validate(attrs)
+    
+
+    def update(self, instance, validated_data):
+        return super().update(instance, validated_data)
+
+
 class GameSerializer(serializers.ModelSerializer):
-    card_states = CardStateSerializer(many=True, validators=[])
-    players = PlayerSerializer(many=True, validators=[])
+    card_states = CardStateSerializer(many=True)
+    players = PlayerSerializer(many=True)
+
 
     class Meta:
         model = Game
         fields = ('id', 'turn', 'turn_stage', 'card_states', 'players',
                   'created_at', 'updated_at')
         read_only_fields = ('created_at', 'updated_at')
-
-    def validate(self, attrs):
-        print('validation')
-        return super().validate(attrs)
-    
-    def update(self, instance, validated_data):
-        print('serializer update')
-        return super().update(instance, validated_data)

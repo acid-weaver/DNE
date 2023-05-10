@@ -170,7 +170,7 @@ class TestGame(BaseTestCaseAPI):
                 updated_card_state['rent_price'] = random.randrange(1000, 5000, 1)
 
             card_ids.append(card_state.id)
-            updated_card_states.append(updated_card_state)
+            updated_card_states.append(JSONRenderer().render(updated_card_state))
 
         user_ids = []
         updated_players = []
@@ -184,7 +184,7 @@ class TestGame(BaseTestCaseAPI):
             updated_player['sp'] = random.randrange(0, 9, 1)
 
             user_ids.append(player.id)
-            updated_players.append(updated_player)
+            updated_players.append(JSONRenderer().render(updated_player))
 
         updated_game = GameSerializer(game).data
         updated_game["card_states"] = updated_card_states
@@ -193,8 +193,10 @@ class TestGame(BaseTestCaseAPI):
         updated_game["users"] = user_ids
 
         updated_game.update({'cards': [], 'users': []})
-        print(updated_game)
 
         url = reverse("game-detail", [game.id])
-        response = self.admin_client.put(url, str(updated_game).replace("'", '"'))
+        # updated_game = dict(updated_game)
+        # print(updated_game)
+        response = self.admin_client.put(url, updated_game)
+        # response = self.admin_client.put(url, str(updated_game).replace("'", '"'))
         print(response.data)
