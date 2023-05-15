@@ -284,7 +284,6 @@ class PlayerCreationTest(BaseTestCaseAPI):
     def test_create_player(self):
         user = baker.make(User)
         game = baker.make(Game)
-        game.save()
 
         # Prepare the request data
         data = {
