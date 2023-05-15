@@ -1,4 +1,6 @@
-from rest_framework import serializers
+from rest_framework.serializers import (ModelSerializer,
+                                        ListField,
+                                        IntegerField)
 from rest_framework.exceptions import ValidationError
 from utils.utils import NestedModelHandler
 
@@ -7,7 +9,7 @@ from user.models import User
 from user.serializers import UserSerializer
 
 
-class CardSerializer(serializers.ModelSerializer):
+class CardSerializer(ModelSerializer):
     class Meta:
         model = Card
         fields = ('id', 'name', 'description', 'type', 'bonus', 'buy_price',
@@ -15,9 +17,8 @@ class CardSerializer(serializers.ModelSerializer):
         read_only_fields = ('created_at', 'updated_at')
 
 
-class DeckSerialier(serializers.ModelSerializer):
+class DeckSerialier(ModelSerializer):
     cards = CardSerializer(many=True)
-
 
     class Meta:
         model = Deck
@@ -25,20 +26,22 @@ class DeckSerialier(serializers.ModelSerializer):
         read_only_fields = ('created_at', 'updated_at')
 
 
-class PlayerSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
-
-
+class PlayerSerializer(ModelSerializer):
     class Meta:
         model = Player
         fields = ('id', 'user', 'game', 'lvl', 'energy', 'bankroll', 'sp')
         read_only_fields = ('user', 'game')
 
 
-# TODO relize all methods "from hand"
-class CardStateSerializer(serializers.ModelSerializer):
-    card = CardSerializer()
+class PlayerCreateSerializer(ModelSerializer):
+    class Meta:
+        model = Player
+        fields = ('id', 'user', 'game', 'lvl', 'energy', 'bankroll', 'sp')
 
+
+# TODO relize all methods "from hand"
+class CardStateSerializer(ModelSerializer):
+    card = CardSerializer()
 
     class Meta:
         model = CardState
@@ -57,7 +60,6 @@ class CardStateSerializer(serializers.ModelSerializer):
 
         return super().validate(attrs)
 
-
     def create(self, validated_data):
         owner = validated_data.get('owner', None)
         buy_price = validated_data.get('buy_price', None)
@@ -70,17 +72,22 @@ class CardStateSerializer(serializers.ModelSerializer):
             rent_price = card.rent_price
 
         return super().create(validated_data)
-    
 
     def update(self, instance, validated_data):
         
         return super().update(instance, validated_data)
 
 
-class GameCreateSerializer(serializers.ModelSerializer):
-    cards = serializers.ListField(write_only=True)
-    users = serializers.ListField(write_only=True)
+class CardStateAdminSerializer(ModelSerializer):
+    class Meta:
+        model = CardState
+        fields = ('id', 'game', 'card', 'player', 'owner', 'state',
+                  'state_description', 'buy_price', 'rent_price')
 
+
+class GameCreateSerializer(ModelSerializer):
+    cards = ListField(write_only=True)
+    users = ListField(write_only=True)
 
     class Meta:
         model = Game
@@ -119,7 +126,6 @@ class GameCreateSerializer(serializers.ModelSerializer):
 
         return attrs
 
-
     def create(self, validated_data):
         turn = validated_data.get('turn', 0)
         turn_stage = validated_data.get('turn_stage', 0)
@@ -138,10 +144,9 @@ class GameCreateSerializer(serializers.ModelSerializer):
         return game
 
 
-class GameUpdateSerializer(serializers.ModelSerializer):
-    card_states = serializers.ListField(write_only=True)
-    players = serializers.ListField(write_only=True)
-
+class GameUpdateSerializer(ModelSerializer):
+    card_states = ListField(write_only=True)
+    players = ListField(write_only=True)
 
     class Meta:
         model = Game
@@ -149,19 +154,44 @@ class GameUpdateSerializer(serializers.ModelSerializer):
                   'updated_at')
         read_only_fields = ('created_at', 'updated_at')
 
-
     def validate(self, attrs):
+        # card_states = attrs.get('card_states', [])
+        # players = attrs.get('players', [])
+
+        # for card_state in card_states:
+        #     parser = NestedModelHandler(card_state, CardState)
+        #     parser.update(CardStateSerializer)
+            # instance = CardState.objects.get(id=card_state.get('id'))
+            # serializer = CardStateSerializer(instance, data=card_state)
+            # serializer.is_valid(raise_exception=True)
+
         return super().validate(attrs)
-    
 
     def update(self, instance, validated_data):
-        return super().update(instance, validated_data)
+        turn = validated_data.get('turn', None)
+        turn_stage = validated_data.get('turn_stage', None)
+        card_states = validated_data.get('card_states', [])
+        players = validated_data.get('players', [])
+
+        for card_state in card_states:
+            parser = NestedModelHandler(card_state, CardState)
+            parser.update(CardStateAdminSerializer)
+
+        for player in players:
+            parser = NestedModelHandler(player, Player)
+            parser.update(PlayerCreateSerializer)
+
+        if not turn is None:
+            instance.turn = turn
+        if not turn_stage is None:
+            instance.turn_stage = turn_stage
+
+        return instance
 
 
-class GameSerializer(serializers.ModelSerializer):
+class GameSerializer(ModelSerializer):
     card_states = CardStateSerializer(many=True)
     players = PlayerSerializer(many=True)
-
 
     class Meta:
         model = Game

@@ -9,8 +9,10 @@ from game.models import (Card,
 from game.serializers import (CardSerializer,
                               DeckSerialier,
                               GameCreateSerializer,
+                              GameUpdateSerializer,
                               GameSerializer,
-                              PlayerSerializer)
+                              PlayerSerializer,
+                              PlayerCreateSerializer)
 from utils.permissions import AdminPermission
 
 
@@ -38,6 +40,8 @@ class GameViewSet(ModelViewSet):
     def get_serializer_class(self):
         if self.request.method in ('POST'):
             return GameCreateSerializer
+        if self.request.method in ('PUT', 'PATCH'):
+            return GameUpdateSerializer
         return GameSerializer
 
 
@@ -53,3 +57,8 @@ class GameViewSet(ModelViewSet):
 class PlayerViewSet(ModelViewSet):
     queryset = Player.objects.order_by('id')
     serializer_class = PlayerSerializer
+
+    def get_serializer_class(self):
+        if self.request.method in ('POST'):
+            return PlayerCreateSerializer
+        return PlayerSerializer
