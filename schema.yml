@@ -1,0 +1,1292 @@
+openapi: 3.0.3
+info:
+  title: DNE API
+  version: 0.0.0
+paths:
+  /api/cards/:
+    get:
+      operationId: api_cards_list
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Card'
+          description: ''
+    post:
+      operationId: api_cards_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Card'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Card'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Card'
+        required: true
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Card'
+          description: ''
+  /api/cards/{id}/:
+    get:
+      operationId: api_cards_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Card'
+          description: ''
+    put:
+      operationId: api_cards_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Card'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Card'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Card'
+        required: true
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Card'
+          description: ''
+    patch:
+      operationId: api_cards_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCard'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCard'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCard'
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Card'
+          description: ''
+    delete:
+      operationId: api_cards_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/decks/:
+    get:
+      operationId: api_decks_list
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DeckSerialier'
+          description: ''
+    post:
+      operationId: api_decks_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeckSerialier'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DeckSerialier'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DeckSerialier'
+        required: true
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeckSerialier'
+          description: ''
+  /api/decks/{id}/:
+    get:
+      operationId: api_decks_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeckSerialier'
+          description: ''
+    put:
+      operationId: api_decks_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeckSerialier'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DeckSerialier'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DeckSerialier'
+        required: true
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeckSerialier'
+          description: ''
+    patch:
+      operationId: api_decks_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedDeckSerialier'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedDeckSerialier'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedDeckSerialier'
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeckSerialier'
+          description: ''
+    delete:
+      operationId: api_decks_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/games/:
+    get:
+      operationId: api_games_list
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Game'
+          description: ''
+    post:
+      operationId: api_games_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GameCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GameCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/GameCreate'
+        required: true
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameCreate'
+          description: ''
+  /api/games/{id}/:
+    get:
+      operationId: api_games_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+          description: ''
+    put:
+      operationId: api_games_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GameUpdate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GameUpdate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/GameUpdate'
+        required: true
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameUpdate'
+          description: ''
+    patch:
+      operationId: api_games_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedGameUpdate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedGameUpdate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedGameUpdate'
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameUpdate'
+          description: ''
+    delete:
+      operationId: api_games_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/players/:
+    get:
+      operationId: api_players_list
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Player'
+          description: ''
+    post:
+      operationId: api_players_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlayerCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PlayerCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PlayerCreate'
+        required: true
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlayerCreate'
+          description: ''
+  /api/players/{id}/:
+    get:
+      operationId: api_players_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Player'
+          description: ''
+    put:
+      operationId: api_players_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Player'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Player'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Player'
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Player'
+          description: ''
+    patch:
+      operationId: api_players_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPlayer'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedPlayer'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedPlayer'
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Player'
+          description: ''
+    delete:
+      operationId: api_players_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/user/:
+    get:
+      operationId: api_user_list
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+          description: ''
+    post:
+      operationId: api_user_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/User'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/user/{id}/:
+    get:
+      operationId: api_user_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    put:
+      operationId: api_user_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/User'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    patch:
+      operationId: api_user_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUser'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUser'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUser'
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    delete:
+      operationId: api_user_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/user/token-auth/:
+    post:
+      operationId: api_user_token_auth_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AuthToken'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AuthToken'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthToken'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthToken'
+          description: ''
+components:
+  schemas:
+    AuthToken:
+      type: object
+      properties:
+        username:
+          type: string
+          writeOnly: true
+        password:
+          type: string
+          writeOnly: true
+        token:
+          type: string
+          readOnly: true
+      required:
+      - password
+      - token
+      - username
+    Card:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        type:
+          allOf:
+          - $ref: '#/components/schemas/TypeEnum'
+          minimum: 0
+          maximum: 32767
+        bonus:
+          type: integer
+          maximum: 32767
+          minimum: 0
+        buy_price:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          nullable: true
+        rent_price:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          nullable: true
+        sp_per_usage:
+          type: integer
+          maximum: 32767
+          minimum: -32768
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - name
+      - type
+      - updated_at
+    CardState:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        game:
+          type: integer
+        card:
+          $ref: '#/components/schemas/Card'
+        player:
+          type: integer
+          nullable: true
+        owner:
+          type: integer
+          nullable: true
+        location:
+          allOf:
+          - $ref: '#/components/schemas/LocationEnum'
+          minimum: 0
+          maximum: 32767
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          minimum: 0
+          maximum: 32767
+        buy_price:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          nullable: true
+        rent_price:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          nullable: true
+      required:
+      - card
+      - game
+      - id
+    DeckSerialier:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 255
+        cards:
+          type: array
+          items:
+            $ref: '#/components/schemas/Card'
+        owner:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - cards
+      - created_at
+      - id
+      - name
+      - owner
+      - updated_at
+    Game:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        turn:
+          type: integer
+          maximum: 32767
+          minimum: 0
+        turn_stage:
+          allOf:
+          - $ref: '#/components/schemas/TurnStageEnum'
+          minimum: 0
+          maximum: 32767
+        card_states:
+          type: array
+          items:
+            $ref: '#/components/schemas/CardState'
+        players:
+          type: array
+          items:
+            $ref: '#/components/schemas/Player'
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - card_states
+      - created_at
+      - id
+      - players
+      - updated_at
+    GameCreate:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        turn:
+          type: integer
+          maximum: 32767
+          minimum: 0
+        turn_stage:
+          allOf:
+          - $ref: '#/components/schemas/TurnStageEnum'
+          minimum: 0
+          maximum: 32767
+        cards:
+          type: array
+          items: {}
+          writeOnly: true
+        users:
+          type: array
+          items: {}
+          writeOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - cards
+      - created_at
+      - id
+      - updated_at
+      - users
+    GameUpdate:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        turn:
+          type: integer
+          maximum: 32767
+          minimum: 0
+        turn_stage:
+          allOf:
+          - $ref: '#/components/schemas/TurnStageEnum'
+          minimum: 0
+          maximum: 32767
+        card_states:
+          type: array
+          items: {}
+          writeOnly: true
+        players:
+          type: array
+          items: {}
+          writeOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - card_states
+      - created_at
+      - id
+      - players
+      - updated_at
+    LocationEnum:
+      enum:
+      - 1
+      - 2
+      - 3
+      type: integer
+      description: |-
+        * `1` - In hand
+        * `2` - At the table
+        * `3` - In deck
+    PatchedCard:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        type:
+          allOf:
+          - $ref: '#/components/schemas/TypeEnum'
+          minimum: 0
+          maximum: 32767
+        bonus:
+          type: integer
+          maximum: 32767
+          minimum: 0
+        buy_price:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          nullable: true
+        rent_price:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          nullable: true
+        sp_per_usage:
+          type: integer
+          maximum: 32767
+          minimum: -32768
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedDeckSerialier:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 255
+        cards:
+          type: array
+          items:
+            $ref: '#/components/schemas/Card'
+        owner:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedGameUpdate:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        turn:
+          type: integer
+          maximum: 32767
+          minimum: 0
+        turn_stage:
+          allOf:
+          - $ref: '#/components/schemas/TurnStageEnum'
+          minimum: 0
+          maximum: 32767
+        card_states:
+          type: array
+          items: {}
+          writeOnly: true
+        players:
+          type: array
+          items: {}
+          writeOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedPlayer:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user:
+          type: integer
+          readOnly: true
+        game:
+          type: integer
+          readOnly: true
+        lvl:
+          type: integer
+          maximum: 32767
+          minimum: 0
+        energy:
+          type: integer
+          maximum: 32767
+          minimum: 0
+        bankroll:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        sp:
+          type: integer
+          maximum: 32767
+          minimum: 0
+    PatchedUser:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          maxLength: 255
+        first_name:
+          type: string
+          maxLength: 255
+        last_name:
+          type: string
+          maxLength: 255
+        decks:
+          type: array
+          items:
+            type: integer
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    Player:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user:
+          type: integer
+          readOnly: true
+        game:
+          type: integer
+          readOnly: true
+        lvl:
+          type: integer
+          maximum: 32767
+          minimum: 0
+        energy:
+          type: integer
+          maximum: 32767
+          minimum: 0
+        bankroll:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        sp:
+          type: integer
+          maximum: 32767
+          minimum: 0
+      required:
+      - game
+      - id
+      - user
+    PlayerCreate:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user:
+          type: integer
+        game:
+          type: integer
+        lvl:
+          type: integer
+          maximum: 32767
+          minimum: 0
+        energy:
+          type: integer
+          maximum: 32767
+          minimum: 0
+        bankroll:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        sp:
+          type: integer
+          maximum: 32767
+          minimum: 0
+      required:
+      - game
+      - id
+      - user
+    StatusEnum:
+      enum:
+      - 1
+      - 2
+      - 3
+      type: integer
+      description: |-
+        * `1` - Common
+        * `2` - Rented
+        * `3` - Bought
+    TurnStageEnum:
+      enum:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      type: integer
+      description: |-
+        * `0` - created
+        * `1` - first
+        * `2` - decision
+        * `3` - making sound
+        * `4` - calculating income
+        * `5` - free time after party
+    TypeEnum:
+      enum:
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+      type: integer
+      description: |-
+        * `1` - NPC
+        * `2` - player class
+        * `3` - loot
+        * `4` - sound
+        * `5` - project
+        * `6` - doing
+        * `7` - anti
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          maxLength: 255
+        first_name:
+          type: string
+          maxLength: 255
+        last_name:
+          type: string
+          maxLength: 255
+        decks:
+          type: array
+          items:
+            type: integer
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - decks
+      - id
+      - updated_at
+      - username
+  securitySchemes:
+    tokenAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Token-based authentication with required prefix "Token"

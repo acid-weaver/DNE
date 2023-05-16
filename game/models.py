@@ -98,34 +98,34 @@ class CardState(models.Model):
     State of every card from deck of the game.
     """
 
-    HAND = 1
-    TABLE = 2
+    IN_HAND = 1
+    AT_TABLE = 2
     IN_DECK = 3
 
-    STATES = [
-        (HAND, 'in hand'),
-        (TABLE, 'card at the table'),
-        (IN_DECK, 'card currently in deck'),
+    LOCATION_CHOICES = [
+        (IN_HAND, 'In hand'),
+        (AT_TABLE, 'At the table'),
+        (IN_DECK, 'In deck'),
     ]
 
-    DEFAULT = 1
+    COMMON = 1
     RENTED = 2
-    BUYED = 3
+    BOUGHT = 3
 
-    DESCRIPTIONS = [
-        (DEFAULT, 'commonly'),
-        (RENTED, 'card in rent'),
-        (BUYED, "card in owner's hand")
+    STATUS_CHOICES = [
+        (COMMON, 'Common'),
+        (RENTED, 'Rented'),
+        (BOUGHT, 'Bought'),
     ]
 
     game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name='card_states')
     card = models.ForeignKey(Card, on_delete=models.CASCADE, related_name='states')
 
     player = models.ForeignKey(Player, on_delete=models.SET_NULL, blank=True, null=True, related_name='cards')
-    owner = models.ForeignKey(Player, on_delete=models.SET_NULL, blank=True, null=True, related_name='own_cards')
+    owner = models.ForeignKey(Player, on_delete=models.SET_NULL, blank=True, null=True, related_name='owned_cards')
 
-    state = models.PositiveSmallIntegerField(default=IN_DECK, choices=STATES)
-    state_description = models.PositiveSmallIntegerField(default=DEFAULT, choices=DESCRIPTIONS)
+    location = models.PositiveSmallIntegerField(default=IN_DECK, choices=LOCATION_CHOICES)
+    status = models.PositiveSmallIntegerField(default=COMMON, choices=STATUS_CHOICES)
     buy_price = models.PositiveIntegerField(blank=True, null=True)
     rent_price = models.PositiveIntegerField(blank=True, null=True)
 

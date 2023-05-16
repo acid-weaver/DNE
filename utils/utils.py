@@ -1,6 +1,7 @@
 import json
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.exceptions import ValidationError
+from rest_framework.serializers import ModelSerializer
 
 
 def get_or_validation_error(id:int, model):
@@ -17,8 +18,10 @@ class NestedModelHandler:
         self.logs = []
         self.instance = None
 
-
     def _get_by_id_int(self):
+        if not isinstance(self.data, str):
+            return
+
         try:
             self.data = int(self.data)
 
@@ -28,19 +31,29 @@ class NestedModelHandler:
         
         self.instance = get_or_validation_error(self.data, self.model)
 
+    def parse(self):
+        if isinstance(self.data, dict):
+            return 1
+        elif isinstance(self.data, int):
+            return 0
 
-    def _get_by_id_dict(self):
         try:
             self.data = dict(json.loads(self.data))
 
         except ValueError:
             self.logs.append("_get_by_id_dict to dict conversion ValueError. "
                              f"Data: {self.data}")
-            return
+            return 0
 
-        except TypeError:
-            self.logs.append("_get_by_id_dict to dict conversion TypeError. "
-                             f"Data: {self.data}")
+        # except TypeError:
+        #     self.logs.append("_get_by_id_dict to dict conversion TypeError. "
+        #                      f"Data: {self.data}")
+        #     return 0
+        
+        return 1
+
+    def _get_by_id_dict(self):
+        if not self.parse():
             return
 
         id = self.data.get('id', None)
@@ -48,7 +61,6 @@ class NestedModelHandler:
             raise ValidationError(f"Provided as dict {self.model.__name__} doesn't have an ID. ")
 
         self.instance = get_or_validation_error(id, self.model)
-
 
     def get_instance(self):
         self._get_by_id_int()
@@ -60,29 +72,29 @@ class NestedModelHandler:
 
         return self.instance
 
-
-    def update(self, serializer):
-        self._get_by_id_dict()
-
-        if not self.instance and not isinstance(self.data, dict):
-            print(self.logs)
+    def validate(self, serializer: ModelSerializer, context: dict) -> None:
+        if not self.parse():
             raise ValidationError(f"{self.model.__name__}s provided with unsupported format.")
 
-        if self.instance:
+        if self.data.get('id', False):
+            self._get_by_id_dict()
+
+            # for case partial update
             data = serializer(self.instance).data
             data.update(self.data)
-            serializer = serializer(self.instance, data=data)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
+
+            # validation for existing instance
+            self.serializer = serializer(self.instance, data=data, context=context)
+            self.serializer.is_valid(raise_exception=True)
 
         else:
-            serializer = serializer(data=self.data)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
+            # validation for new instance
+            self.serializer = serializer(data=self.data, context=context)
+            self.serializer.is_valid(raise_exception=True)
 
+    def update(self):
+        if not self.serializer:
+            raise ValidationError(f"Run validation before update {self.model.__name__}.")
 
-    def __call__(self):
-        if self.logs and not self.instance:
-            raise ValidationError(f"{self.model.__name__}s provided with unsupported format."
-                                  f"Logs: {self.logs}")
-        return self.get_instance()
+        self.instance = self.serializer.save()
+        return self.instance

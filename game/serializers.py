@@ -1,6 +1,5 @@
 from rest_framework.serializers import (ModelSerializer,
-                                        ListField,
-                                        IntegerField)
+                                        ListField)
 from rest_framework.exceptions import ValidationError
 from utils.utils import NestedModelHandler
 
@@ -45,8 +44,8 @@ class CardStateSerializer(ModelSerializer):
 
     class Meta:
         model = CardState
-        fields = ('id', 'game', 'card', 'player', 'owner', 'state',
-                  'state_description', 'buy_price', 'rent_price')
+        fields = ('id', 'game', 'card', 'player', 'owner', 'location',
+                  'status', 'buy_price', 'rent_price')
 
 
     def validate(self, attrs):
@@ -73,16 +72,12 @@ class CardStateSerializer(ModelSerializer):
 
         return super().create(validated_data)
 
-    def update(self, instance, validated_data):
-        
-        return super().update(instance, validated_data)
-
 
 class CardStateAdminSerializer(ModelSerializer):
     class Meta:
         model = CardState
-        fields = ('id', 'game', 'card', 'player', 'owner', 'state',
-                  'state_description', 'buy_price', 'rent_price')
+        fields = ('id', 'game', 'card', 'player', 'owner', 'location',
+                  'status', 'buy_price', 'rent_price')
 
 
 class GameCreateSerializer(ModelSerializer):
@@ -91,8 +86,9 @@ class GameCreateSerializer(ModelSerializer):
 
     class Meta:
         model = Game
-        fields = ('id', 'turn', 'turn_stage', 'cards', 'users', 'created_at', 'updated_at')
-        read_only_fields = ('created_at', 'updated_at')
+        fields = ('id', 'turn', 'turn_stage', 'cards', 'users',
+                  'card_states', 'players', 'created_at', 'updated_at')
+        read_only_fields = ('card_states', 'players', 'created_at', 'updated_at')
 
 
     def validate(self, attrs):
@@ -105,8 +101,8 @@ class GameCreateSerializer(ModelSerializer):
 
         parsed_cards = []
         for card in cards:
-            parser = NestedModelHandler(card, Card)
-            card = parser()
+            handler = NestedModelHandler(card, Card)
+            card = handler.get_instance()
 
             parsed_cards.append(card)
             
@@ -116,8 +112,8 @@ class GameCreateSerializer(ModelSerializer):
 
         parsed_users = []
         for user in users:
-            parser = NestedModelHandler(user, User)
-            user = parser()
+            handler = NestedModelHandler(user, User)
+            user = handler.get_instance()
 
             parsed_users.append(user)
 
@@ -155,31 +151,37 @@ class GameUpdateSerializer(ModelSerializer):
         read_only_fields = ('created_at', 'updated_at')
 
     def validate(self, attrs):
-        # card_states = attrs.get('card_states', [])
-        # players = attrs.get('players', [])
+        card_states = attrs.get('card_states', [])
+        players = attrs.get('players', [])
 
-        # for card_state in card_states:
-        #     parser = NestedModelHandler(card_state, CardState)
-        #     parser.update(CardStateSerializer)
-            # instance = CardState.objects.get(id=card_state.get('id'))
-            # serializer = CardStateSerializer(instance, data=card_state)
-            # serializer.is_valid(raise_exception=True)
+        card_handlers = []
+        for card_state in card_states:
+            handler = NestedModelHandler(card_state, CardState)
+            handler.validate(CardStateAdminSerializer, context=self.context)
+            card_handlers.append(handler)
 
-        return super().validate(attrs)
+        player_handlers = []
+        for player in players:
+            handler = NestedModelHandler(player, Player)
+            handler.validate(PlayerCreateSerializer, context=self.context)
+            card_handlers.append(handler)
+
+        attrs['card_handlers'] = card_handlers
+        attrs['player_handlers'] = player_handlers
+
+        return attrs
 
     def update(self, instance, validated_data):
         turn = validated_data.get('turn', None)
         turn_stage = validated_data.get('turn_stage', None)
-        card_states = validated_data.get('card_states', [])
-        players = validated_data.get('players', [])
+        card_handlers = validated_data.get('card_handlers', [])
+        player_handlers = validated_data.get('player_handlers', [])
 
-        for card_state in card_states:
-            parser = NestedModelHandler(card_state, CardState)
-            parser.update(CardStateAdminSerializer)
+        for handler in card_handlers:
+            handler.update()
 
-        for player in players:
-            parser = NestedModelHandler(player, Player)
-            parser.update(PlayerCreateSerializer)
+        for handler in player_handlers:
+            handler.update()
 
         if not turn is None:
             instance.turn = turn

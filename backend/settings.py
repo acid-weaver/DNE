@@ -53,6 +53,7 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'rest_framework.authtoken',
+    'drf_spectacular',
 
     'user.apps.UserConfig',
     'game.apps.GameConfig',
@@ -81,6 +82,13 @@ REST_FRAMEWORK = {
     # "DEFAULT_PERMISSION_CLASSES":[
     #     "rest_framework.permissions.IsAuthenticated",
     # ]
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "DNE API",
+    "DESCRIPTION": "Kyiv raves game.",
+    "VERSION": "1.0",
 }
 
 TEMPLATES = [

@@ -1,6 +1,4 @@
-import json
 import random
-from rest_framework.renderers import JSONRenderer
 from utils.tests import BaseTestCaseAPI
 from model_bakery import baker
 from rest_framework.reverse import reverse
@@ -102,7 +100,7 @@ class TestCard(BaseTestCaseAPI):
         self.assertEqual(response.status_code, 200)
         test_instance = CardSerializer(card).data
         self.assertEqual(response.data, test_instance)
-        
+
 
 class TestGame(BaseTestCaseAPI):
 
@@ -120,32 +118,28 @@ class TestGame(BaseTestCaseAPI):
         self.assertEqual(response.status_code, 201)
 
         game_id = response.data.get("id", None)
-        url = reverse("game-detail", [game_id])
-        response = self.admin_client.get(url)
-
         players = response.data.get('players', [])
         card_states = response.data.get('card_states', [])
+
         self.assertEqual(players, [PlayerSerializer(player).data for player in Player.objects.filter(game_id=game_id)])
         self.assertEqual(card_states, [CardStateSerializer(card).data for card in CardState.objects.filter(game_id=game_id)])
 
         # creation with format list of json - cards
-        cards = [JSONRenderer().render(CardSerializer(card).data) for card in [Card.objects.get(id=card_id) for card_id in card_ids]]
-        users = [JSONRenderer().render(UserSerializer(user).data) for user in [User.objects.get(id=user_id) for user_id in user_ids]]
+        cards = [CardSerializer(card).data for card in [Card.objects.get(id=card_id) for card_id in card_ids]]
+        users = [UserSerializer(user).data for user in [User.objects.get(id=user_id) for user_id in user_ids]]
         body = {
             "cards": cards,
             "users": users
         }
 
         url = reverse("game-list")
-        response = self.admin_client.post(url, body)
+        response = self.admin_client.post(url, body, format='json')
         self.assertEqual(response.status_code, 201)
 
         game_id = response.data.get("id", None)
-        url = reverse("game-detail", [game_id])
-        response = self.admin_client.get(url)
-
         players = response.data.get('players', [])
         card_states = response.data.get('card_states', [])
+
         self.assertEqual(players, [PlayerSerializer(player).data for player in Player.objects.filter(game_id=game_id)])
         self.assertEqual(card_states, [CardStateSerializer(card).data for card in CardState.objects.filter(game_id=game_id)])
 
@@ -165,8 +159,8 @@ class TestGame(BaseTestCaseAPI):
             updated_card_state['card'] = updated_card_state['card']['id']
             updated_card_state['player'] = players[random.randrange(0, players_count-1, 1)].id
             updated_card_state['owner'] = players[random.randrange(0, players_count-1, 1)].id
-            updated_card_state['state'] = random.randrange(1, 3, 1)
-            updated_card_state['state_description'] = random.randrange(1, 3, 1)
+            updated_card_state['location'] = random.randrange(1, 3, 1)
+            updated_card_state['status'] = random.randrange(1, 3, 1)
 
             if updated_card_state['buy_price']:
                 updated_card_state['buy_price'] = random.randrange(10000, 50000, 1)
@@ -175,7 +169,7 @@ class TestGame(BaseTestCaseAPI):
                 updated_card_state['rent_price'] = random.randrange(1000, 5000, 1)
 
             card_ids.append(card_state.id)
-            updated_card_states.append(JSONRenderer().render(updated_card_state))
+            updated_card_states.append(updated_card_state)
 
         # info with which we would update players
         user_ids = []
@@ -190,7 +184,7 @@ class TestGame(BaseTestCaseAPI):
             updated_player['sp'] = random.randrange(0, 9, 1)
 
             user_ids.append(player.id)
-            updated_players.append(JSONRenderer().render(updated_player))
+            updated_players.append(updated_player)
 
         updated_game = GameSerializer(game).data
         updated_game["card_states"] = updated_card_states
@@ -200,26 +194,23 @@ class TestGame(BaseTestCaseAPI):
 
         url = reverse("game-detail", [game.id])
 
-        response = self.admin_client.put(url, updated_game)
+        response = self.admin_client.put(url, updated_game, format='json')
         self.assertEqual(response.status_code, 200)
 
         game_id = response.data.get("id", None)
-        url = reverse("game-detail", [game_id])
-
-        response = self.admin_client.get(url)
-
         players = response.data.get('players', [])
         card_states = response.data.get('card_states', [])
+
         self.assertEqual(players, [PlayerSerializer(player).data for player in Player.objects.filter(game_id=game_id)])
         self.assertEqual(card_states, [CardStateSerializer(card).data for card in CardState.objects.filter(game_id=game_id)])
 
         for count in range(len(updated_players)):
 
-            self.assertEqual(dict(players[count]), json.loads(updated_players[count]))
+            self.assertEqual(dict(players[count]), updated_players[count])
 
             card_state = dict(card_states[count])
             card_state['card'] = card_state['card']['id']
-            self.assertEqual(card_state, json.loads(updated_card_states[count]))
+            self.assertEqual(card_state, updated_card_states[count])
 
     def test_game_append_players(self):
         # Create an existing game with some card states and players
