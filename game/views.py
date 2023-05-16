@@ -13,7 +13,7 @@ from game.serializers import (CardSerializer,
                               GameSerializer,
                               PlayerSerializer,
                               PlayerCreateSerializer)
-from utils.permissions import AdminPermission
+# from utils.permissions import AdminPermission
 
 
 class CardViewSet(ModelViewSet):
