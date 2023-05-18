@@ -12,6 +12,18 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id', 'username', 'password', 'first_name', 'last_name', 'decks', 'created_at', 'updated_at')
         read_only_fields = ('created_at', 'updated_at')
+        extra_kwargs = {'decks': {'required': False}}
+
+    def validate(self, attrs):
+        username = attrs.get('username', None)
+        password = attrs.get('password', None)
+
+        if User.objects.filter(username=username).exists():
+            raise serializers.ValidationError("User with this username already exists!")
+        if not password or (len(password) < 5):
+            raise serializers.ValidationError("Password not provided or its lenght lower than 5!")
+
+        return super().validate(attrs)
 
     def create(self, validated_data):
         username = validated_data.get('username', None)
